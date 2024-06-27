@@ -32,6 +32,7 @@
   background-repeat: no-repeat;
   color: #fff;
   font-size: 100px;
+  width: 100%;
 }
 
 .sign-up {
@@ -437,4 +438,65 @@ i {
 		bottom: -25px;
 		left: -25px;
 	}
+}
+
+
+.products-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px;
+}
+
+.products {
+  margin-bottom: 20px;
+  font-size: 2rem;
+  color: #333;
+}
+
+.drop-zones {
+  display: flex;
+  gap: 40px;
+}
+
+.drop-zone {
+  width: 250px;
+  height: 250px;
+  border: 2px dashed #007BFF;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #555;
+  background-color: #f9f9f9;
+  padding: 20px;
+  transition: background-color 0.3s, border-color 0.3s;
+  cursor: pointer;
+}
+
+.drop-zone:hover {
+  background-color: #e0e7ff;
+  border-color: #0056b3;
+}
+
+.drop-zone p {
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #007BFF;
+}
+
+.drop-zone ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 10px 0 0 0;
+  width: 100%;
+  overflow-y: auto;
+  font-size: 14px;
+}
+
+.drop-zone li {
+  word-break: break-all;
 }

@@ -17,7 +17,8 @@ function HeroSection() {
   return (
     <div className="hero-container">
       <video src="/videos/250919_Hitech High_Tech Software Science_By_Gilad_Baron__Artlist_HD.mp4" autoPlay loop muted />
-      <audio ref={audioRef} src="/Audio/SPEARFISHER - Inevitable.mp3" preload="auto" />
+      { //<audio ref={audioRef} src="/Audio/SPEARFISHER - Inevitable.mp3" preload="auto" />
+      }
       <h1>"From draft to defense, we’re with you."</h1>
       <p>What are you waiting for?</p>
       <div className="hero-btns">
