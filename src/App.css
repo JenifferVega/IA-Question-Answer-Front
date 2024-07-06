@@ -29,7 +29,7 @@
   background-image: url('/images/img-1.jpg');
   background-position: center;
   background-size: fill;
-  background-repeat: no-repeat;
+  /*background-repeat: no-repeat;*/
   color: #fff;
   font-size: 100px;
   width: 100%;
@@ -441,6 +441,63 @@ i {
 }
 
 
+/* Loading animation */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  color: #fff;
+}
+
+.loading-spinner {
+  border: 16px solid #f3f3f3;
+  border-top: 16px solid #3498db;
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Question and Answer Styles */
+.question-answer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.question-answer {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 10px 0;
+  width: 80%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.question-answer h3 {
+  margin-bottom: 10px;
+  font-size: 1.5rem;
+}
+
+.question-answer p {
+  font-size: 1rem;
+  color: #333;
+}
+
+/* Your existing styles */
+
 .products-container {
   display: flex;
   flex-direction: column;
@@ -452,6 +509,7 @@ i {
   margin-bottom: 20px;
   font-size: 2rem;
   color: #333;
+  height: unset;
 }
 
 .drop-zones {
@@ -462,7 +520,7 @@ i {
 .drop-zone {
   width: 250px;
   height: 250px;
-  border: 2px dashed #007BFF;
+  border: 2px dashed #007bff;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
@@ -485,7 +543,7 @@ i {
   margin-top: 10px;
   font-size: 18px;
   font-weight: bold;
-  color: #007BFF;
+  color: #007bff;
 }
 
 .drop-zone ul {
@@ -499,4 +557,9 @@ i {
 
 .drop-zone li {
   word-break: break-all;
+}
+
+/* fix global styles */
+html, body, #root{
+  height: 100%;
 }
