@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from txtai.pipeline import Textractor
+from .configuration.config import load_configuration
+from .rag.helper import execute_prompt
 import os
 
 app = Flask(__name__)
@@ -65,4 +67,5 @@ def upload_files():
     })
 
 if __name__ == '__main__':
+    load_configuration()
     app.run(debug=True)
