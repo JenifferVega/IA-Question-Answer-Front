@@ -1,15 +1,13 @@
+// src/components/SignUp.js
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { auth, googleProvider } from "../../firebase"; // Asegúrate de importar tu configuración de Firebase
 import "../../App.css"; // Asegúrate de que tu CSS esté correctamente importado
-import { Link } from 'react-router-dom';
-
+import googleIcon from "../../assets/icons/web_light_rd_na.svg"; // Importa tu icono de Google
 
 export default function SignUp() {
-
-  const [click, setClick] = useState(false);
-
-  const closeMobileMenu = () => setClick(false);
-
   const [isSignUpActive, setIsSignUpActive] = useState(true);
+  const navigate = useNavigate(); // Inicializa useNavigate
 
   const handleSignInClick = () => {
     setIsSignUpActive(false);
@@ -21,12 +19,24 @@ export default function SignUp() {
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
+    // Aquí deberías manejar la lógica de autenticación.
+    // Si la autenticación es exitosa, redirige al dashboard:
+    navigate('/dashboard');
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      await auth.signInWithPopup(googleProvider);
+      alert('Logged in successfully');
+      navigate('/dashboard'); // Redirige al dashboard después de iniciar sesión
+    } catch (error) {
+      alert(error.message);
+    }
   };
 
   return (
     <div className="login-signup-container">
-      <div className="blurred-image"></div>{" "}
-      {/* Nueva div para la imagen difuminada */}
+      <div className="blurred-image"></div>
       <div
         className={`container ${isSignUpActive ? "right-panel-active" : ""}`}
       >
@@ -43,6 +53,9 @@ export default function SignUp() {
             <input type="email" placeholder="Email" className="input" />
             <input type="password" placeholder="Password" className="input" />
             <button className="btn">Sign Up</button>
+            <button type="button" className="btn google-btn" onClick={handleGoogleSignIn}>
+              <img src={googleIcon} alt="Google Icon" className="google-icon" /> Sign Up with Google
+            </button>
           </form>
         </div>
 
@@ -54,21 +67,16 @@ export default function SignUp() {
             id="form2"
             onSubmit={handleFormSubmit}
           >
-            <h2 ></h2>
-            <Link
-                to='/dashboard'
-                className="form__title"
-                onClick={closeMobileMenu}
-              >
-                Sign In
-              </Link>
+            <h2 className="form__title">Sign In</h2>
             <input type="email" placeholder="Email" className="input" />
             <input type="password" placeholder="Password" className="input" />
             <a href="#" className="link">
               Forgot your password?
             </a>
-
             <button className="btn">Sign In</button>
+            <button type="button" className="btn google-btn" onClick={handleGoogleSignIn}>
+              <img src={googleIcon} alt="Google Icon" className="google-icon" /> Sign In with Google
+            </button>
           </form>
         </div>
 

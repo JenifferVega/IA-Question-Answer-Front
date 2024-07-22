@@ -1,28 +1,52 @@
+// src/App.js
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import './App.css';
+import Sidebar from './components/Sidebar';
+import Header from './components/Header';
 import Home from './components/pages/Home';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import Services from './components/pages/Services';
 import Products from './components/pages/Products';
 import SignUp from './components/pages/SignUp';
-import Dashboard from './components/pages/Dashboard'; // Importa el componente Dashboard
+import Dashboard from './components/pages/Dashboard';
+import MainContent from './components/MainContent';
+import './App.css';
 
-function App() {
+const App = () => {
   return (
-    <>
-      <Router>
-        <Navbar />
-        <Switch>
-          <Route path='/' exact component={Home} />
-          <Route path='/services' component={Services} />
-          <Route path='/products' component={Products} />
-          <Route path='/sign-up' component={SignUp} />
-          <Route path='/dashboard' component={Dashboard} /> {/* Agrega la ruta para el Dashboard */}
-        </Switch>
-      </Router>
-    </>
+    <Router>
+      <Routes>
+        <Route
+          path="/dashboard"
+          element={
+            <div className="app-layout">
+              <Sidebar />
+              <div className="main-layout">
+                <Header />
+                <MainContent>
+                  <Dashboard />
+                </MainContent>
+              </div>
+            </div>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <>
+              <Navbar />
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/services" element={<Services />} />
+                <Route path="/products" element={<Products />} />
+                <Route path="/sign-up" element={<SignUp />} />
+              </Routes>
+            </>
+          }
+        />
+      </Routes>
+    </Router>
   );
-}
+};
 
 export default App;

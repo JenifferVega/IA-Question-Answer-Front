@@ -1,0 +1,7 @@
+/* src/components/MainContent.css */
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    background: #ecf0f1;
+  }
+  

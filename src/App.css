@@ -563,3 +563,35 @@ i {
 html, body, #root{
   height: 100%;
 }
+
+/* src/App.css */
+.app-layout {
+  display: flex;
+  height: 100vh;
+}
+
+.main-layout {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.content-area {
+  padding: 20px;
+  background: #ecf0f1;
+  flex-grow: 1;
+}
+
+
+/*BOTTOM */
+
+
+.btn.google-btn {
+  background-color: #4285F4;
+  color: white;
+  margin-top: 10px;
+}
+
+.btn.google-btn:hover {
+  background-color: #357ae8;
+}
