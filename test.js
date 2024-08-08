@@ -1,29 +1,42 @@
+// src/components/SignUp.js
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   doCreateUserWithEmailAndPassword,
   doSignInWithEmailAndPassword,
   doSignInWithGoogle,
+  doSignU,
 } from "../firebase/auth"; // Asegúrate de que la ruta sea correcta
 import "../../App.css";
 import googleIcon from "../../assets/icons/web_light_rd_na.svg";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-//import { useAuth } from "../firebase/auth";
-import { auth } from "components/firebase/firebase";
+import auth from "../firebase-config";
+
 
 export default function SignUp() {
-  //const {userLoggedIn} = useAuth();
-  
   const [isSignUpActive, setIsSignUpActive] = useState(true);
   const [isSigningIn, setIsSigningIn] = useState(false);
-  const [isLoggedIn, setISLoggedIn] = useState(false);
-  const [userData, setUserData] = useState({});
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const navigate = useNavigate();
+
+  const handleSwitchToSignIn = () => {
+    setIsSignUpActive(false);
+    setEmail('');
+    setPassword('');
+    setConfirmPassword('');
+  };
+  
+  const handleSwitchToSignUp = () => {
+    setIsSignUpActive(true);
+    setEmail('');
+    setPassword('');
+    setConfirmPassword('');
+  };
+
 
   const isValidPassword = (password, confirmPassword) => {
     const minLength = 8;
@@ -39,73 +52,58 @@ export default function SignUp() {
 
   const onSubmitSignUp = async (e) => {
     e.preventDefault();
-    if (isSigningIn) return; // Asegura que no se procese múltiples veces
-
-    // Validación del correo y la contraseña
-    if (!isValidEmail(email)) {
-      setErrorMessage("Please enter a valid email address.");
-      return;
-    }
-    if (!isValidPassword(password, confirmPassword)) {
-      setErrorMessage(
-        "Password must be at least 8 characters long, include special characters, and both passwords must match."
-      );
-      return;
-    }
-
-    setIsSigningIn(true); // Indica que el proceso de registro ha iniciado
-    try {
-      const userCredential = await doCreateUserWithEmailAndPassword(
-        email,
-        password
-      );
-      if (userCredential) {
-        alert("Account created successfully. Please sign in.");
-        resetForm(); // Reinicia el formulario y la UI
+    if (!isSigningIn) {
+      if (!isValidEmail(email)) {
+        setErrorMessage("Please enter a valid email address.");
+        return; // Detiene la ejecución si el correo no es válido
       }
-    } catch (error) {
-      if (error.code === "auth/email-already-in-use") {
-        alert(
-          "The email address is already in use by another account. Please log in."
+      if (!isValidPassword(password, confirmPassword)) {
+        setErrorMessage(
+          "Password must be at least 8 characters long, include special characters, and both passwords must match."
         );
-      } else {
-        alert(error.message); // Maneja otros posibles errores
+        return; // Detiene la ejecución si la contraseña no es válida
+      }
+      setIsSigningIn(true);
+      try {
+        await doCreateUserWithEmailAndPassword(email, password);
+        setIsSignUpActive(false); // Cambia a la vista de inicio de sesión
+        setEmail(""); // Limpia el correo
+        setPassword(""); // Limpia la contraseña
+        setConfirmPassword(""); // Limpia la confirmación de la contraseña
+        setIsSigningIn(false);
+        alert("Account created successfully. Please sign in."); // Muestra alerta de cuenta creada
+      } catch (error) {
+        if (error.code === "auth/email-already-in-use") {
+          alert("The email address is already in use by another account."); // Muestra alerta de email en uso
+        } else {
+          alert(error.message); // Muestra alerta de otros errores
+        }
+        setIsSigningIn(false);
       }
     }
-    setIsSigningIn(false); // Restablece el estado de registro
   };
 
-  function resetForm() {
-    setEmail("");
-    setPassword("");
-    setConfirmPassword("");
-    setIsSignUpActive(false); // Opcional: cambia la UI al estado de 'log in'
-    setIsSigningIn(false);
-  }
+  
+    const handleGoogleSignUp = async () => {
+        const provider = new GoogleAuthProvider();
+        try {
+            const result = await signInWithPopup(auth, provider);
+            // This gives you a Google Access Token. You can use it to access Google APIs.
+            const token = result.credential.accessToken;
+            // The signed-in user info.
+            const user = result.user;
 
-  const onGoogleSignUp = () => {
-    const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider)
-      .then((result) => {
+            if (result.additionalUserInfo.isNewUser) {
+                alert("Account created successfully. Please sign in.");
+            } else {
+                alert("Welcome back! You have signed in successfully.");
+            }
+        } catch (error) {
+            console.error("Error during Google sign-in:", error);
+            alert("Failed to sign in with Google: " + error.message);
+        }
+    };
 
-        const {displayName, email} = result.user;
-        setUserData({displayName, email})
-        
-        setISLoggedIn(true);
-      })
-      .catch((error) => {
-        // Handle Errors here.
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // The email of the user's account used.
-        const email = error.customData.email;
-        // The AuthCredential type that was used.
-        const credential = GoogleAuthProvider.credentialFromError(error);
-        // ...
-
-        console.log({ error });
-      });
-  };
 
   const onSubmitSignIn = async (e) => {
     e.preventDefault();
@@ -122,23 +120,26 @@ export default function SignUp() {
     }
   };
 
-  const doSignInWithGoogle = async (isSignUp = false) => {
+  const doSignInWithGoogle = async () => {
+    const auth = getAuth();
     const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential.accessToken;
-        const user = result.user;
-        navigate("/dashboard");  // Redirecciona al dashboard
-      }).catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log("Error signing in with Google:", errorCode, errorMessage);
-      });
+    try {
+      const result = await signInWithPopup(auth, provider);
+      console.log("Resultado de la autenticación:", result);
+      return result;
+    } catch (error) {
+      console.error("Error signing in with Google:", error);
+      console.log("Código de error:", error.code); // Esto puede ayudarte a entender mejor el problema
+      throw error;
+    }
   };
+  
 
   
 
+
+
+  
   return (
     <div className="login-signup-container">
       <div className="blurred-image"></div>
@@ -175,7 +176,7 @@ export default function SignUp() {
             <br />
             <span>Or sign Up with:</span>
             <br />
-            <button type="button" onClick={onGoogleSignUp}>
+            <button type="button" onClick={handleGoogleSignUp}>
               <img src={googleIcon} alt="Google Icon" className="google-icon" />
             </button>
           </form>

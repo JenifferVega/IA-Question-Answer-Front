@@ -1,12 +1,14 @@
-// src/components/pages/Dashboard.js
-import React, { useState, useRef } from 'react';
-import '@fortawesome/fontawesome-free/css/all.min.css';
-import './Dashboard.css';
+import React, { useState, useRef } from "react";
+import "@fortawesome/fontawesome-free/css/all.min.css";
+import "./Dashboard.css";
+import { useAuth } from "contexts/authContext";
+import { auth } from "components/firebase/firebase";
 
 const Dashboard = () => {
   const [dragging, setDragging] = useState(false);
-  const [fileName, setFileName] = useState('');
+  const [fileName, setFileName] = useState("");
   const fileInputRef = useRef(null);
+  const { currentUser } = useAuth();
 
   const handleDragEnter = (e) => {
     e.preventDefault();
@@ -35,7 +37,7 @@ const Dashboard = () => {
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const file = e.dataTransfer.files[0];
       setFileName(file.name);
-      console.log('Dropped file:', file);
+      console.log("Dropped file:", file);
       // Handle file upload here
       e.dataTransfer.clearData();
     }
@@ -44,7 +46,7 @@ const Dashboard = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setFileName(file.name);
-    console.log('Selected file:', file);
+    console.log("Selected file:", file);
     // Handle file upload here
   };
 
@@ -54,14 +56,20 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
-      <div className="dashboard-content">
-        Dashboard Content
+      <div className="dashboard-header">
+        {currentUser && (
+          <div className="user-info">
+            {/* <span>Welcome, {currentUser.displayName || currentUser.email}!</span> */}
+           
+          </div>
+        )}
       </div>
+      <div className="dashboard-content">Dashboard Content</div>
       <div className="file-name">
         {fileName && <p>Selected file: {fileName}</p>}
       </div>
       <div
-        className={`search-button-container ${dragging ? 'dragging' : ''}`}
+        className={`search-button-container ${dragging ? "dragging" : ""}`}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onDragOver={handleDragOver}
@@ -75,7 +83,7 @@ const Dashboard = () => {
         <input
           type="file"
           ref={fileInputRef}
-          style={{ display: 'none' }}
+          style={{ display: "none" }}
           onChange={handleFileChange}
         />
       </div>

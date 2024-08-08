@@ -17,7 +17,7 @@
 }
 
 .services {
-  background-image: url('/images/img-2.jpg');
+  background-image: url('../src/images/img-2.jpg');
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -26,7 +26,7 @@
 }
 
 .products {
-  background-image: url('/images/img-1.jpg');
+  background-image: url('../src/images/img-1.jpg');
   background-position: center;
   background-size: fill;
   /*background-repeat: no-repeat;*/
@@ -78,7 +78,8 @@
   max-width: var(--max-width);
   overflow: hidden;
   position: relative;
-  width: 100%;
+  width: 800px;
+  height: 600px;
   margin-top: 10%;
 }
 
@@ -130,7 +131,7 @@
 
 .login-signup-container .overlay {
   background-color: var(--lightblue);
-  background-image: url('/images/GradientMesh_Light.png');
+  background-image: url('../src/images/GradientMesh_Light.png');
   background-attachment: fixed;
   background-position: center;
   background-repeat: no-repeat;
@@ -227,7 +228,7 @@
 .login-signup-container .form__title {
   font-weight: 300;
   margin: 0;
-  margin-bottom: 1.25rem;
+  margin: 2.55rem 0 0.25rem 0;
 }
 
 .login-signup-container .link {
@@ -586,12 +587,12 @@ html, body, #root{
 /*BOTTOM */
 
 
-.btn.google-btn {
-  background-color: #4285F4;
-  color: white;
-  margin-top: 10px;
+.google-btn {
+  background-color: transparent; /* Cambia el color de fondo a transparente */
+  border: none;  /* Quita cualquier borde que pueda tener */
+  color: inherit; /* El color del texto hereda del elemento padre */
 }
 
-.btn.google-btn:hover {
-  background-color: #357ae8;
+.google-btn:hover {
+  background-color: #f8f9fa; /* Un color de fondo suave para el estado hover */
 }
