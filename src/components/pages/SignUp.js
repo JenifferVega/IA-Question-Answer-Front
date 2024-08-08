@@ -7,7 +7,7 @@ import {
 } from "../firebase/auth"; // Asegúrate de que la ruta sea correcta
 import "../../App.css";
 import googleIcon from "../../assets/icons/web_light_rd_na.svg";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { getAuth, signInWithPopup, GoogleAuthProvider, getRedirectResult , fetchSignInMethodsForEmail } from "firebase/auth";
 //import { useAuth } from "../firebase/auth";
 import { auth } from "components/firebase/firebase";
 
@@ -22,6 +22,9 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [username, setUsername] = useState("");  // Estado para el nombre de usuario
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState('');
 
   const navigate = useNavigate();
 
@@ -76,6 +79,7 @@ export default function SignUp() {
   };
 
   function resetForm() {
+    setUsername("");  // Añade esto para limpiar el nombre de usuario
     setEmail("");
     setPassword("");
     setConfirmPassword("");
@@ -122,22 +126,17 @@ export default function SignUp() {
     }
   };
 
-  const doSignInWithGoogle = async (isSignUp = false) => {
+  const doSignInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider)
-      .then((result) => {
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential.accessToken;
-        const user = result.user;
-        navigate("/dashboard");  // Redirecciona al dashboard
-      }).catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log("Error signing in with Google:", errorCode, errorMessage);
-      });
+      .then(async (result) =>{
+        console.log(result);
+        if(result.user){
+          alert("user logged in Succesfully!")
+        }
+        navigate("/dashboard");
+      })
   };
-
-  
 
   return (
     <div className="login-signup-container">
@@ -146,40 +145,49 @@ export default function SignUp() {
         className={`container ${isSignUpActive ? "right-panel-active" : ""}`}
       >
         <div className="container__form container--signup">
-          <form className="form" id="form1">
-            <h2 className="form__title">Sign Up</h2>
-            <input type="text" placeholder="User" className="input" />
-            <input
-              type="email"
-              placeholder="Email"
-              className="input"
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              className="input"
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <input
-              type="password"
-              placeholder="Confirm Password"
-              className="input"
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
-            <button className="btn" onClick={onSubmitSignUp}>
-              Sign Up
-            </button>
-            <br />
-            {errorMessage && <p className="error-message">{errorMessage}</p>}
-            <br />
-            <span>Or sign Up with:</span>
-            <br />
-            <button type="button" onClick={onGoogleSignUp}>
-              <img src={googleIcon} alt="Google Icon" className="google-icon" />
-            </button>
+          <form className="form" id="form1" onSubmit={onSubmitSignUp}> 
+              <h2 className="form__title">Sign Up</h2>
+              <input
+                type="text"
+                placeholder="User"
+                className="input"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                className="input"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                className="input"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <input
+                type="password"
+                placeholder="Confirm Password"
+                className="input"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+              <button type="submit" className="btn"> 
+                  Sign Up
+              </button>
+              <br />
+              {errorMessage && <p className="error-message">{errorMessage}</p>}
+              <br />
+              <span>Or sign Up with:</span>
+              <br />
+              <button type="button" onClick={onGoogleSignUp}>
+                  <img src={googleIcon} alt="Google Icon" className="google-icon" />
+              </button>
           </form>
-        </div>
+      </div>
 
         <div className="container__form container--signin">
           <form className="form" id="form2">
@@ -216,7 +224,7 @@ export default function SignUp() {
           <div className="overlay">
             <div className="overlay__panel overlay--left">
               <img
-                src="/images/Landsacpe.png"
+                src="/imagen/logo2.png"
                 alt="Logo"
                 className="logo logo-signup"
               />
@@ -230,7 +238,7 @@ export default function SignUp() {
             </div>
             <div className="overlay__panel overlay--right">
               <img
-                src="/images/Landsacpe.png"
+                src="/imagen/logo2.png"
                 alt="Logo"
                 className="logo logo-signin"
               />
