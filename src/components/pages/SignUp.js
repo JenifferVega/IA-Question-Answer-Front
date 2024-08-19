@@ -149,7 +149,7 @@ export default function SignUp() {
               <h2 className="form__title">Sign Up</h2>
               <input
                 type="text"
-                placeholder="User"
+                placeholder="Username"
                 className="input"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
@@ -183,7 +183,7 @@ export default function SignUp() {
               <br />
               <span>Or sign Up with:</span>
               <br />
-              <button type="button" onClick={onGoogleSignUp}>
+              <button type="button" onClick={onGoogleSignUp} style={{ background:"#0567a6" }} >
                   <img src={googleIcon} alt="Google Icon" className="google-icon" />
               </button>
           </form>
@@ -213,7 +213,7 @@ export default function SignUp() {
             <br />
             <spam>Or sign In with:</spam>
             <br />
-            <button type="button" onClick={doSignInWithGoogle}>
+            <button type="button" onClick={doSignInWithGoogle} style={{ background:"#0567a6" }} >
               <img src={googleIcon} alt="Google Icon" className="google-icon" />
             </button>
             {errorMessage && <p className="error-message">{errorMessage}</p>}

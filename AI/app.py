@@ -36,6 +36,12 @@ UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+ALLOWED_EXTENSIONS = {'pdf', 'docx'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
 @app.route('/upload', methods=['POST'])
 def upload_files():
     id_token = request.headers.get("Authorization")
@@ -49,50 +55,55 @@ def upload_files():
         uid = decoded_token['uid']
         user = auth.get_user(uid)
         user_name = user.display_name
+        user_email = user.email  # Get the user's email
     except Exception as e:
         return jsonify({"error": str(e)}), 401
 
-    if 'knowledgeBaseFiles' not in request.files or 'questionDocumentsFiles' not in request.files:
-        return jsonify({"error": "Missing file(s)"}), 400
+    # Knowledge base files are mandatory
+    if 'knowledgeBaseFiles' not in request.files:
+        return jsonify({"error": "Missing Knowledge Base file(s)"}), 400
 
     knowledge_base_files = request.files.getlist('knowledgeBaseFiles')
-    question_documents_files = request.files.getlist('questionDocumentsFiles')
+    question_documents_files = request.files.getlist('questionDocumentsFiles') if 'questionDocumentsFiles' in request.files else []
 
+    # Directory paths based on user's email
+    user_folder = os.path.join(app.config['UPLOAD_FOLDER'], user_email)
+    
+    # Create dovument title with 
+    
+    
+    assessment_folder = os.path.join(user_folder, 'assessment')
+
+    # Ensure the directories exist
+    os.makedirs(assessment_folder, exist_ok=True)
+
+    # Validate and save knowledge base files
     for file in knowledge_base_files:
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-        file.save(file_path)
-        # Process files here if necessary
+        if not allowed_file(file.filename):
+            return jsonify({"error": f"Invalid file type for {file.filename}. Only .docx and .pdf are allowed."}), 400
 
-    for file in question_documents_files:
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+        file_path = os.path.join(assessment_folder, file.filename)
         file.save(file_path)
-        # Process files here if necessary
+
+    # Validate and save question documents files (if any)
+    if question_documents_files:
+        for file in question_documents_files:
+            if not allowed_file(file.filename):
+                return jsonify({"error": f"Invalid file type for {file.filename}. Only .docx and .pdf are allowed."}), 400
+
+            file_path = os.path.join(assessment_folder, file.filename)
+            file.save(file_path)
 
     questions = [
         "Need for organisational performance development in Online Media Solution",
-                    "Five (5) benefits of organisational performance development",
-                    "Purpose and objectives of the performance development program",
-                    "Management structures and wider support requirements in development program",
-                    "Responsibilities of the managers in development program",
-                    "Relevant legislation in development program",
-                    "Three (3) modes and methods to conduct performance reviews.",
-                    "Methods and resources needed to report the outcomes of the organisational performance development program",
-                    "Means for reporting and collating outcomes of organisational performance development",
-                    "Key performance indicators of the team members",
-                    "Procedure to conduct performance appraisals (200-300 words)",
-                    "Benefits of organisational performance development (200-300 words)",
-                    "GROW model of coaching staff members (200-300 words)",
-                    "Purpose of the performance development policies and procedures.",
-                    "Scope of the performance development policies and procedures.",
-                    "Organisational performance development procedures.",
-                    "Accountabilities and responsibilities of the following: ● Managers ● Staff members ",
-                    "Documentation requirements "
     ]
 
     return jsonify({
         "questions": questions,
-        "user_name": user_name  # Return the user's display name
+        "user_name": user_name,  # Return the user's display name
+        "saved_location": assessment_folder  # Optionally return the saved location
     })
+
 
 @app.route('/hello', methods=['GET'])
 def hello():

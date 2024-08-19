@@ -8,22 +8,13 @@ const Sidebar = () => {
   return (
     <div className="sidebar">
       <Link to="#">
-        <FaTachometerAlt /> YOUR DOCUMENTS
+        <FaTachometerAlt /> Your Documents
       </Link>
       <Link to="#">
         <FaTasks /> WOMAN DOC.
       </Link>
       <Link to="#">
         <FaTasks /> PRODUCT DOC
-      </Link>
-      <Link to="#">
-        <FaTasks /> LICENCE DOC
-      </Link>
-      <Link to="#">
-        <FaTasks /> STATISTICS
-      </Link>
-      <Link to="#">
-        <FaTasks /> STATISTICS 2
       </Link>
     </div>
   );

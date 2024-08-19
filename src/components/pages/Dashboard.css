@@ -3,19 +3,26 @@
 .dashboard-container {
   display: flex;
   flex-direction: column;
-  height: 100%; /* Full height of the parent */
-  position: relative; /* For positioning the search button */
+  height: 100%;
+  /* Full height of the parent */
+  position: relative;
+  /* For positioning the search button */
 }
 
 .dashboard-content {
-  flex: 1; /* Take up remaining space */
+  flex: 1;
+  /* Take up remaining space */
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px; /* Adjust as needed */
-  font-size: 24px; /* Make the title larger */
-  font-weight: bold; /* Make the title bold */
-  margin-top: -20px; /* Move the title up */
+  padding: 20px;
+  /* Adjust as needed */
+  font-size: 24px;
+  /* Make the title larger */
+  font-weight: bold;
+  /* Make the title bold */
+  margin-top: -20px;
+  /* Move the title up */
 }
 
 .file-name {
@@ -25,34 +32,81 @@
 
 .search-button-container {
   position: absolute;
-  bottom: 70px; /* Distance from the bottom */
+  bottom: 70px;
+  /* Distance from the bottom */
   left: 50%;
   transform: translateX(-50%);
 }
 
 .search-button {
-  padding: 15px 25px; /* Increase padding for a larger button */
-  font-size: 18px; /* Increase font size */
-  background-color: #f0f0f0; /* Light gray background */
-  color: #333; /* Dark gray text */
-  border: 1px solid #ccc; /* Light gray border */
-  border-radius: 25px; /* Rounded button */
+  padding: 15px 25px;
+  /* Increase padding for a larger button */
+  font-size: 18px;
+  /* Increase font size */
+  background-color: #f0f0f0;
+  /* Light gray background */
+  color: #333;
+  /* Dark gray text */
+  border: 1px solid #ccc;
+  /* Light gray border */
+  border-radius: 25px;
+  /* Rounded button */
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 550px; /* Increase button width */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  width: 550px;
+  /* Increase button width */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* Subtle shadow */
 }
 
 .search-button:hover {
-  background-color: #e0e0e0; /* Slightly darker gray on hover */
+  background-color: #e0e0e0;
+  /* Slightly darker gray on hover */
 }
 
 .search-button i {
-  margin: 0 5px; /* Spacing between icons and text */
+  margin: 0 5px;
+  /* Spacing between icons and text */
 }
 
 .search-button-container.dragging {
-  border: 2px dashed #1abc9c; /* Style for drag and drop active state */
+  border: 2px dashed #1abc9c;
+  /* Style for drag and drop active state */
+}
+
+
+/* new custom styles */
+
+.react-confirm-alert-body h1 {
+  margin-bottom: 20px;
+  /* Add space between title and content */
+}
+
+.react-confirm-alert-button-group button {
+  width: 100%;
+  /* Make the button full width */
+  padding: 10px;
+  /* Add padding for better spacing */
+}
+
+.chat-zone {
+  background: white;
+  height: 100%;
+  width: 100%;
+  border-radius: 5px;
+  font-size: 16px;
+  padding: 5%;
+  text-align: justify;
+  overflow: scroll;
+
+  /* Hide scrollbars in WebKit-based browsers (Chrome, Safari, etc.) */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbars in Firefox */
+  scrollbar-width: none;
+  /* Firefox */
 }
