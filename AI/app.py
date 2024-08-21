@@ -4,6 +4,11 @@ import firebase_admin
 from firebase_admin import credentials, auth
 import os
 from dotenv import load_dotenv
+from txtai.pipeline import Summary
+import random
+import string
+
+summary = Summary()
 
 # Load environment variables
 load_dotenv()
@@ -67,10 +72,23 @@ def upload_files():
     question_documents_files = request.files.getlist('questionDocumentsFiles') if 'questionDocumentsFiles' in request.files else []
 
     # Directory paths based on user's email
-    user_folder = os.path.join(app.config['UPLOAD_FOLDER'], user_email)
+    user_folder = os.path.join(app.config['UPLOAD_FOLDER'], user_email)    
     
-    # Create dovument title with 
+    # Get the filenames for knowledge base files
+    knowledge_base_filenames = [file.filename for file in knowledge_base_files]
+
+    # Get the filenames for question documents files
+    question_documents_filenames = [file.filename for file in question_documents_files]
+
+    # Join all filenames into a single string
+    all_filenames = ', '.join(knowledge_base_filenames + question_documents_filenames)
     
+    # Create document title with 
+    title = summary(all_filenames, maxlength=10)
+    #prevent title duplication
+    letters = string.ascii_lowercase
+    #title += letters[:3]
+        
     
     assessment_folder = os.path.join(user_folder, 'assessment')
 
@@ -100,8 +118,8 @@ def upload_files():
 
     return jsonify({
         "questions": questions,
-        "user_name": user_name,  # Return the user's display name
-        "saved_location": assessment_folder  # Optionally return the saved location
+        "user_name": user_name,
+        "documentName": title
     })
 
 

@@ -9,7 +9,8 @@
   display: flex;
   flex-direction: column;
   padding-top: 20px;
-  box-sizing: border-box; /* Ensure padding is included in the height calculation */
+  box-sizing: border-box;
+  /* Ensure padding is included in the height calculation */
 }
 
 .sidebar a {
@@ -22,7 +23,8 @@
 }
 
 .sidebar a svg {
-  margin-right: 10px; /* Add space between the icon and the text */
+  margin-right: 10px;
+  /* Add space between the icon and the text */
 }
 
 .sidebar a:hover {
@@ -31,4 +33,23 @@
 
 .sidebar a.active {
   background: #1abc9c;
+}
+
+.add-document-btn {
+  display: block;
+  width: 90%;
+  padding: 10px;
+  margin-top: 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  font-size: 16px;
+  border-radius: 5px;
+  margin-left: 5%;
+}
+
+.add-document-btn:hover {
+  background-color: #45a049;
 }

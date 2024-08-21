@@ -1,21 +1,24 @@
-// src/components/Sidebar.js
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { FaTachometerAlt, FaTasks, FaClone, FaCalendarAlt, FaChartBar, FaCopy } from 'react-icons/fa';
-import './Sidebar.css'; // Create a CSS file for styling
+import { FaTachometerAlt, FaCopy } from 'react-icons/fa';
+import './Sidebar.css';
+import { DocumentContext } from '../contexts/documentContext';
 
 const Sidebar = () => {
+  const { documents, clearResetDashboard } = useContext(DocumentContext);
   return (
     <div className="sidebar">
       <Link to="#">
         <FaTachometerAlt /> Your Documents
       </Link>
-      <Link to="#">
-        <FaTasks /> WOMAN DOC.
-      </Link>
-      <Link to="#">
-        <FaTasks /> PRODUCT DOC
-      </Link>
+      {documents.map((doc, index) => (
+        <Link key={index} to="#">
+          <FaCopy /> {doc}
+        </Link>
+      ))}
+      {documents.length > 0 ? <button className="add-document-btn" onClick={clearResetDashboard}>
+        Add New Document
+      </button> : <></>}
     </div>
   );
 };

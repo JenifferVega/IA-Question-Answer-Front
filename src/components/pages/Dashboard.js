@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useContext, useEffect } from "react";
 import axios from "axios";
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
@@ -6,6 +6,7 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./Dashboard.css";
 import { useAuth } from "contexts/authContext";
 import { auth } from 'components/firebase/firebase';
+import { DocumentContext } from '../../contexts/documentContext';
 
 const ALLOWED_EXTENSIONS = ['pdf', 'docx'];
 
@@ -17,7 +18,20 @@ const Dashboard = () => {
   const [textInputActive, setTextInputActive] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const { currentUser } = useAuth();
-  const [questions, setQuestions] = useState([""]);
+  const [questions, setQuestions] = useState([]);
+  const { resetDashboard, addDocument } = useContext(DocumentContext);
+
+  useEffect(() => {
+    if (resetDashboard) {
+      setKnowledgeBaseFiles([]);
+      setQuestionDocumentsFiles([]);
+      setLoading(false);
+      setIsTextInputEnabled(false);
+      setTextInputActive(false);
+      setErrorMessage('');
+      setQuestions([]);
+    }
+  }, [resetDashboard]);
 
   const knowledgeBaseInputRef = useRef(null);
   const questionDocumentsInputRef = useRef(null);
@@ -47,7 +61,6 @@ const Dashboard = () => {
 
     setFiles((prevFiles) => [...prevFiles, ...files]);
     setErrorMessage('');
-    handleFileInputChange();
   };
 
   const handleDrop = (event, setFiles) => {
@@ -63,7 +76,6 @@ const Dashboard = () => {
     setFiles((prevFiles) => [...prevFiles, ...files]);
     setErrorMessage('');
     event.dataTransfer.clearData();
-    handleFileInputChange();
   };
 
   const handleDragOver = (event) => {
@@ -71,7 +83,6 @@ const Dashboard = () => {
   };
 
   const handleTextInputClick = () => {
-    console.log("clicked here");
     if (!textInputActive) {
       handleUpload();
     }
@@ -137,6 +148,8 @@ const Dashboard = () => {
       console.log("Files uploaded successfully:", response.data);
       setTextInputActive(true);
       setQuestions(response.data.questions);
+      addDocument(response.data.documentName);
+      handleFileInputChange();
     } catch (error) {
       console.error("Error uploading files:", error);
     } finally {
@@ -215,7 +228,7 @@ const Dashboard = () => {
             <p>Uploading...</p>
           </div>
         ) : (
-          <p>Drop your files to upload</p>
+          <p> {questions.length > 0 ? "" : "Drop your files to upload"} </p>
         )}
       </div>
       {errorMessage && (
