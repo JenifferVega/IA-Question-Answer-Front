@@ -1,6 +1,5 @@
 import os
 from dotenv import load_dotenv
-from openai import OpenAI
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -30,4 +29,4 @@ class Config:
     
     # OpenAI API client
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-    openai_client = OpenAI(api_key=f'sk-{OPENAI_API_KEY}')
+    #openai_client = OpenAI(api_key=f'sk-{OPENAI_API_KEY}')

@@ -20,6 +20,7 @@ const Dashboard = () => {
   const { currentUser } = useAuth();
   const [questions, setQuestions] = useState([]);
   const { resetDashboard, addDocument } = useContext(DocumentContext);
+  const [displayedText, setDisplayedText] = useState("");
 
   useEffect(() => {
     if (resetDashboard) {
@@ -148,6 +149,7 @@ const Dashboard = () => {
       console.log("Files uploaded successfully:", response.data);
       setTextInputActive(true);
       setQuestions(response.data.questions);
+      typeQuestion(response.data.questions[0]);
       addDocument(response.data.documentName);
       handleFileInputChange();
     } catch (error) {
@@ -155,6 +157,24 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+
+  const typeQuestion = (questionText) => {
+    setDisplayedText("");
+    let index = 0;
+    const speed = 25;
+
+    const formattedText = questionText.replace(/\n/g, "<br />");
+
+    const timer = setInterval(() => {
+      if (index < formattedText.length) {
+        setDisplayedText((prev) => prev + formattedText[index]);
+        index++;
+      } else {
+        clearInterval(timer);
+      }
+    }, speed);
   };
 
   return (
@@ -169,7 +189,9 @@ const Dashboard = () => {
       <div className="dashboard-content">
         {
           questions.length > 0 ? (
-            <div className="chat-zone">chat zone</div> // Ensure the div tag is properly closed
+            <div className="chat-zone">
+              <p dangerouslySetInnerHTML={{ __html: displayedText }} />
+            </div>
           ) : (
             <div className="drop-zones">
               <div

@@ -8,14 +8,19 @@ from services.assessment_processing_service import (
     cluster_segments, check_similarity, extract_questions,
     request_gpt_completion, parse_gpt_output_to_json
 )
-from txtai.pipeline import Similarity, Labels
-from txtai.pipeline.tokenizer import Tokenizer
+from txtai.pipeline import Similarity, Labels, Summary
+from openai import OpenAI
 from flask import current_app
+from nltk.tokenize import texttiling
 
 def upload_files():
+    
+    """
+    ai_api_key = current_app.config['OPENAI_API_KEY']
     # Initialize the OpenAI client
-    client = current_app.config['openai_client']
-
+    client =  OpenAI(api_key=f'sk-{ai_api_key}')
+    """
+    
     # Get the ID token from the request header
     id_token = request.headers.get("Authorization")
 
@@ -32,8 +37,12 @@ def upload_files():
     knowledge_base_files = request.files.getlist('knowledgeBaseFiles')
     question_documents_files = request.files.getlist('questionDocumentsFiles') if 'questionDocumentsFiles' in request.files else []
 
+    # Create a document title from the filenames of both Knowledge Base and Question Documents
+    all_filenames = ', '.join([file.filename for file in knowledge_base_files + question_documents_files])
+    title = generate_summary(all_filenames, maxlength=10)
+    
     # Create user and assessment directories
-    user_folder, assessment_folder = handle_files(user_info['email'], knowledge_base_files + question_documents_files, [])
+    user_folder, assessment_folder = handle_files(user_info['email'], title, knowledge_base_files, question_documents_files)
 
     # Save Knowledge Base and Question Document files
     # Assume `handle_files` function saves the files to their respective directories
@@ -54,7 +63,7 @@ def upload_files():
             cleaned_text = clean_text(section)
 
             # Tokenize the cleaned text
-            tokenizer = Tokenizer()  # Instantiate the tokenizer
+            tokenizer = texttiling.TextTilingTokenizer()
             segments = segment_text(cleaned_text, tokenizer)
 
             # Cluster segments and extract questions
@@ -64,26 +73,37 @@ def upload_files():
 
             # Check similarity for AI-solvable questions
             similarity = Similarity("valhalla/distilbart-mnli-12-3")
-            summary_cluster_info = " ".join(first_cluster)
+            first_cluster_text = " ".join(first_cluster)
+            second_cluster_text = " ".join(second_cluster)
+            # Summary to improve similarity
+            summary = Summary()
+            summary_cluster_info = summary([first_cluster_text,second_cluster_text], maxlength=200)
             sim_check = check_similarity(similarity, "Ai can solve this activity?", summary_cluster_info)
-
+            selected_cluster = second_cluster if sim_check[0][0] != 0 else first_cluster
+                
             # Extract relevant questions
-            relevant_questions = extract_questions(similarity, second_cluster)
+            
+            relevant_questions = [question_text for _, question_text in extract_questions(similarity, "Ai can solve this activity?", selected_cluster)]
+            
+            filtered_relevant_questions = [segment for segment in selected_cluster if segment in relevant_questions]
+            
+            """
+
+            relevant_questions_text = " ".join([question_text for score, question_text in relevant_questions_with_indices])
 
             # Use GPT to extract more detailed questions
-            gpt_output = request_gpt_completion(client, cleaned_text)
-
+            gpt_output = request_gpt_completion(client, relevant_questions_text)
+            
             # Parse the GPT output into JSON format
             parsed_questions = parse_gpt_output_to_json(gpt_output)
-            extracted_questions.extend(parsed_questions)
-
-    # Create a document title from the filenames of both Knowledge Base and Question Documents
-    all_filenames = ', '.join([file.filename for file in knowledge_base_files + question_documents_files])
-    title = generate_summary(all_filenames, maxlength=10)
+            
+            """
+                        
+            extracted_questions = filtered_relevant_questions
+            
 
     # Return the extracted questions along with user info and document title
     return jsonify({
         "questions": extracted_questions,
-        "user_name": user_info['name'],
-        "documentName": title
+        "documentName": title,
     })

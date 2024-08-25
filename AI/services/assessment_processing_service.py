@@ -38,10 +38,10 @@ def cluster_segments(segments, labels, tags):
     return first_cluster, second_cluster
 
 def check_similarity(similarity, text, cluster_info):
-    return similarity("Ai can solve this activity?", cluster_info)
+    return similarity(text, cluster_info)
 
-def extract_questions(similarity, cluster):
-    return [(score, cluster[x]) for x, score in similarity("Ai can solve this activity?", cluster) if score > 0.5]
+def extract_questions(similarity, text, cluster):
+    return [(score, cluster[x]) for x, score in similarity(text, cluster) if score > 0.5]
 
 def request_gpt_completion(client, section_text):
     # Making a request to the GPT API for question extraction
@@ -62,9 +62,9 @@ def request_gpt_completion(client, section_text):
                 ],
             }
         ],
-        max_tokens=300,
+        max_tokens=2048,
     )
-    return response['choices'][0]['message']['content']
+    return response.choices[0].message.content
 
 def parse_gpt_output_to_json(gpt_output):
     # Clean and extract JSON-like output from GPT

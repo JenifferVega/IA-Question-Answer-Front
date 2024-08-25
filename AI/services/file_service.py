@@ -2,10 +2,10 @@ import os
 from flask import current_app
 from utils.allowed_file import allowed_file
 
-def handle_files(user_email, knowledge_base_files, question_documents_files):
+def handle_files(user_email, title, knowledge_base_files, question_documents_files):
     # Use UPLOAD_FOLDER from the app config
     user_folder = os.path.join(current_app.config['UPLOAD_FOLDER'], user_email)
-    assessment_folder = os.path.join(user_folder, 'assessment')
+    assessment_folder = os.path.join(user_folder, title)
 
     os.makedirs(assessment_folder, exist_ok=True)
 
