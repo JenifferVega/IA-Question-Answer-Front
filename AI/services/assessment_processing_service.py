@@ -43,7 +43,7 @@ def check_similarity(similarity, text, cluster_info):
 def extract_questions(similarity, text, cluster):
     return [(score, cluster[x]) for x, score in similarity(text, cluster) if score > 0.5]
 
-def request_gpt_completion(client, section_text):
+def request_gpt_completion_extract_questions(client, section_text):
     # Making a request to the GPT API for question extraction
     response = client.chat.completions.create(
         model="gpt-4o-mini",

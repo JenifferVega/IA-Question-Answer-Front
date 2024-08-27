@@ -6,6 +6,8 @@ import os
 from config import Config  # Reference the Config class from config.py
 from routes.upload_route import upload_files
 from routes.hello_route import hello
+from routes.inference_questions_route import inference_questions
+from flask import Flask
 
 # Initialize Flask app and load configuration
 app = Flask(__name__)
@@ -30,6 +32,8 @@ firebase_admin.initialize_app(cred)
 # Register routes
 app.add_url_rule('/upload', 'upload_files', upload_files, methods=['POST'])
 app.add_url_rule('/hello', 'hello', hello, methods=['GET'])
+app.add_url_rule('/inference-questions', 'inference_question', inference_questions, methods=['POST'])
+
 
 if __name__ == '__main__':
     app.run(debug=True)

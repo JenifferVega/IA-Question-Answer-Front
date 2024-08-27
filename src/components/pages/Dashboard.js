@@ -10,6 +10,8 @@ import { DocumentContext } from '../../contexts/documentContext';
 
 const ALLOWED_EXTENSIONS = ['pdf', 'docx'];
 
+const backend_url = "http://127.0.0.1:5000"
+
 const Dashboard = () => {
   const [knowledgeBaseFiles, setKnowledgeBaseFiles] = useState([]);
   const [questionDocumentsFiles, setQuestionDocumentsFiles] = useState([]);
@@ -126,7 +128,7 @@ const Dashboard = () => {
   };
 
   const proceedWithUpload = async () => {
-    console.log("here")
+    console.log("Starting upload...");
     setLoading(true);
 
     const formData = new FormData();
@@ -139,25 +141,47 @@ const Dashboard = () => {
 
     try {
       const token = await auth.currentUser.getIdToken(true);
-      console.log("token", token)
-      const response = await axios.post("http://127.0.0.1:5000/upload", formData, {
+      console.log("Token:", token);
+
+      const uploadResponse = await axios.post(`${backend_url}/upload`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           "Authorization": `Bearer ${token}`,
         },
       });
-      console.log("Files uploaded successfully:", response.data);
-      setTextInputActive(true);
-      setQuestions(response.data.questions);
-      typeQuestion(response.data.questions[0]);
-      addDocument(response.data.documentName);
+
+      console.log("Files uploaded successfully:", uploadResponse.data);
+
+      const questions = uploadResponse.data.questions;
+      setQuestions(questions);
+      addDocument(uploadResponse.data.documentName);
       handleFileInputChange();
+
+      if (questions.length > 0) {
+        setLoading(true);
+        console.log("Sending question to the inference-questions service...");
+
+        const inferenceResponse = await axios.post(`${backend_url}/inference-questions`, {
+          text: questions[0]
+        }, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+        });
+
+        console.log("Inference result received:", inferenceResponse.data);
+        setLoading(false);
+        typeQuestion(questions[0]);
+      }
+
     } catch (error) {
-      console.error("Error uploading files:", error);
+      console.error("Error uploading files or sending question to the inference-questions service:", error);
     } finally {
       setLoading(false);
     }
   };
+
 
 
   const typeQuestion = (questionText) => {
@@ -190,6 +214,7 @@ const Dashboard = () => {
         {
           questions.length > 0 ? (
             <div className="chat-zone">
+              { loading ? <p className="loading-text" >Loading....</p> : <></> }
               <p dangerouslySetInnerHTML={{ __html: displayedText }} />
             </div>
           ) : (

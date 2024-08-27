@@ -5,12 +5,9 @@ from services.file_service import handle_files
 from services.summarizer_service import generate_summary
 from services.assessment_processing_service import (
     clean_text, extract_sections, segment_text, 
-    cluster_segments, check_similarity, extract_questions,
-    request_gpt_completion, parse_gpt_output_to_json
+    cluster_segments, check_similarity, extract_questions
 )
 from txtai.pipeline import Similarity, Labels, Summary
-from openai import OpenAI
-from flask import current_app
 from nltk.tokenize import texttiling
 
 def upload_files():
