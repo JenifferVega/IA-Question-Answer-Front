@@ -7,15 +7,17 @@ import "./Dashboard.css";
 import { useAuth } from "contexts/authContext";
 import { auth } from 'components/firebase/firebase';
 import { DocumentContext } from '../../contexts/documentContext';
+import { splitParagraphInTwo } from '../../helpers';
 
 const ALLOWED_EXTENSIONS = ['pdf', 'docx'];
 
-const backend_url = "http://127.0.0.1:5000"
+const backend_url = "http://127.0.0.1:5000";
 
 const Dashboard = () => {
   const [knowledgeBaseFiles, setKnowledgeBaseFiles] = useState([]);
   const [questionDocumentsFiles, setQuestionDocumentsFiles] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [typeLoading, setTypeLoading] = useState(false);
   const [isTextInputEnabled, setIsTextInputEnabled] = useState(false);
   const [textInputActive, setTextInputActive] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -26,15 +28,20 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (resetDashboard) {
-      setKnowledgeBaseFiles([]);
-      setQuestionDocumentsFiles([]);
-      setLoading(false);
-      setIsTextInputEnabled(false);
-      setTextInputActive(false);
-      setErrorMessage('');
-      setQuestions([]);
+      resetAllState();
     }
   }, [resetDashboard]);
+
+  const resetAllState = () => {
+    setKnowledgeBaseFiles([]);
+    setQuestionDocumentsFiles([]);
+    setLoading(false);
+    setIsTextInputEnabled(false);
+    setTextInputActive(false);
+    setErrorMessage('');
+    setQuestions([]);
+    setDisplayedText("");
+  };
 
   const knowledgeBaseInputRef = useRef(null);
   const questionDocumentsInputRef = useRef(null);
@@ -45,12 +52,8 @@ const Dashboard = () => {
   };
 
   const handleFileInputChange = () => {
-    if (knowledgeBaseFiles.length > 0 && questionDocumentsFiles.length > 0) {
-      setIsTextInputEnabled(true);
-      setTextInputActive(true);
-    } else {
-      setIsTextInputEnabled(false);
-    }
+    setIsTextInputEnabled(knowledgeBaseFiles.length > 0 && questionDocumentsFiles.length > 0);
+    setTextInputActive(knowledgeBaseFiles.length > 0 && questionDocumentsFiles.length > 0);
   };
 
   const handleFilesSelection = (event, setFiles) => {
@@ -92,17 +95,11 @@ const Dashboard = () => {
   };
 
   const handleUpload = async () => {
-
-    if (knowledgeBaseFiles.length === 0 || questionDocumentsFiles.length > 0 && knowledgeBaseFiles.length === 0) {
+    if (knowledgeBaseFiles.length === 0 || (questionDocumentsFiles.length > 0 && knowledgeBaseFiles.length === 0)) {
       confirmAlert({
         title: 'Error',
         message: 'Please upload Knowledge Base files!',
-        buttons: [
-          {
-            label: 'OK',
-            onClick: () => { }
-          }
-        ]
+        buttons: [{ label: 'OK', onClick: () => { } }]
       });
       return;
     }
@@ -112,14 +109,8 @@ const Dashboard = () => {
         title: 'Confirm',
         message: 'Do you want to continue without uploading a Question Document?',
         buttons: [
-          {
-            label: 'Yes',
-            onClick: () => proceedWithUpload()
-          },
-          {
-            label: 'No',
-            onClick: () => { }
-          }
+          { label: 'Yes', onClick: () => proceedWithUpload() },
+          { label: 'No', onClick: () => { } }
         ]
       });
     } else {
@@ -127,67 +118,90 @@ const Dashboard = () => {
     }
   };
 
+  const createFormData = (knowledgeBaseFiles, questionDocumentsFiles) => {
+    const formData = new FormData();
+    knowledgeBaseFiles.forEach(file => formData.append("knowledgeBaseFiles", file));
+    questionDocumentsFiles.forEach(file => formData.append("questionDocumentsFiles", file));
+    return formData;
+  };
+
+  const uploadFiles = async (formData, token) => {
+    return await axios.post(`${backend_url}/upload`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        "Authorization": `Bearer ${token}`,
+      },
+    });
+  };
+
+  const sendQuestionForInference = async (question, token) => {
+    return await axios.post(`${backend_url}/inference-questions`, { text: question }, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+    });
+  };
+
+  const formatInferenceResults = (questionSection, inferenceQuestions) => {
+    console.log("inferenceQuestions", inferenceQuestions);
+    let sectionWithContext = "";
+    inferenceQuestions.forEach(inferenceQuestion => {
+      const [firstPart, secondPart] = splitParagraphInTwo(questionSection, inferenceQuestion.text_reference);
+      sectionWithContext += `<p class='question-section'>${firstPart}</p>\n<p class='answer-section'>${inferenceQuestion.question}</p>\n`;
+      questionSection = secondPart;
+    });
+    return sectionWithContext;
+  };
+
   const proceedWithUpload = async () => {
     console.log("Starting upload...");
     setLoading(true);
-
-    const formData = new FormData();
-    knowledgeBaseFiles.forEach((file) => {
-      formData.append("knowledgeBaseFiles", file);
-    });
-    questionDocumentsFiles.forEach((file) => {
-      formData.append("questionDocumentsFiles", file);
-    });
 
     try {
       const token = await auth.currentUser.getIdToken(true);
       console.log("Token:", token);
 
-      const uploadResponse = await axios.post(`${backend_url}/upload`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          "Authorization": `Bearer ${token}`,
-        },
-      });
+      const formData = createFormData(knowledgeBaseFiles, questionDocumentsFiles);
+      const uploadResponse = await uploadFiles(formData, token);
 
       console.log("Files uploaded successfully:", uploadResponse.data);
+      setLoading(false);
 
-      const questions = uploadResponse.data.questions;
-      setQuestions(questions);
+      const questionsSections = uploadResponse.data.questions;
+      setQuestions(questionsSections);
       addDocument(uploadResponse.data.documentName);
       handleFileInputChange();
 
-      if (questions.length > 0) {
-        setLoading(true);
-        console.log("Sending question to the inference-questions service...");
+      if (questionsSections.length > 0) {
+        let i = 0;
+        for (let question of questionsSections) {
+          if (i > 0) {
+            break;
+          }
 
-        const inferenceResponse = await axios.post(`${backend_url}/inference-questions`, {
-          text: questions[0]
-        }, {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json"
-          },
-        });
+          setTypeLoading(true);
+          console.log("Sending question to the inference-questions service...");
 
-        console.log("Inference result received:", inferenceResponse.data);
-        setLoading(false);
-        typeQuestion(questions[0]);
+          const inferenceResponse = await sendQuestionForInference(question, token);
+          const formattedText = formatInferenceResults(question, inferenceResponse.data.questions);
+
+          setTypeLoading(false);
+          typeQuestion(formattedText);
+          i++;
+        }
       }
 
     } catch (error) {
       console.error("Error uploading files or sending question to the inference-questions service:", error);
-    } finally {
       setLoading(false);
     }
   };
 
-
-
   const typeQuestion = (questionText) => {
     setDisplayedText("");
     let index = 0;
-    const speed = 25;
+    const speed = 10;
 
     const formattedText = questionText.replace(/\n/g, "<br />");
 
@@ -214,8 +228,11 @@ const Dashboard = () => {
         {
           questions.length > 0 ? (
             <div className="chat-zone">
-              { loading ? <p className="loading-text" >Loading....</p> : <></> }
-              <p dangerouslySetInnerHTML={{ __html: displayedText }} />
+              {typeLoading ? (
+                <p className="loading-text">Loading....</p>
+              ) : (
+                <div className="scrollable-content" dangerouslySetInnerHTML={{ __html: displayedText }} />
+              )}
             </div>
           ) : (
             <div className="drop-zones">
@@ -224,7 +241,7 @@ const Dashboard = () => {
                 id="knowledge-base"
                 onDrop={(e) => handleDrop(e, setKnowledgeBaseFiles)}
                 onDragOver={handleDragOver}
-                onClick={() => !textInputActive && knowledgeBaseInputRef.current.click()} // Trigger file input dialog on click
+                onClick={() => !textInputActive && knowledgeBaseInputRef.current.click()}
               >
                 <i className="fas fa-file-upload fa-3x"></i>
                 <p>Knowledge Base</p>
@@ -246,7 +263,7 @@ const Dashboard = () => {
                 id="question-documents"
                 onDrop={(e) => handleDrop(e, setQuestionDocumentsFiles)}
                 onDragOver={handleDragOver}
-                onClick={() => !textInputActive && questionDocumentsInputRef.current.click()} // Trigger file input dialog on click
+                onClick={() => !textInputActive && questionDocumentsInputRef.current.click()}
               >
                 <i className="fas fa-file-upload fa-3x"></i>
                 <p>Question Documents</p>
@@ -266,16 +283,15 @@ const Dashboard = () => {
             </div>
           )
         }
-
       </div>
       <div className="file-name">
         {loading ? (
-          <div className="loading-container" style={{ height: "unset", marginBottom: "25%" }} >
+          <div className="loading-container" style={{ height: "unset", marginBottom: "25%" }}>
             <div className="loading-spinner"></div>
             <p>Uploading...</p>
           </div>
         ) : (
-          <p> {questions.length > 0 ? "" : "Drop your files to upload"} </p>
+          <p>{questions.length > 0 ? "" : "Drop your files to upload"}</p>
         )}
       </div>
       {errorMessage && (
