@@ -7,14 +7,14 @@ import {
 } from "../firebase/auth"; // Asegúrate de que la ruta sea correcta
 import "../../App.css";
 import googleIcon from "../../assets/icons/web_light_rd_na.svg";
-import { getAuth, signInWithPopup, GoogleAuthProvider, getRedirectResult , fetchSignInMethodsForEmail } from "firebase/auth";
+import { getAuth, signInWithPopup, GoogleAuthProvider, getRedirectResult, fetchSignInMethodsForEmail } from "firebase/auth";
 //import { useAuth } from "../firebase/auth";
 import { auth } from "components/firebase/firebase";
 
 export default function SignUp() {
   //const {userLoggedIn} = useAuth();
-  
-  const [isSignUpActive, setIsSignUpActive] = useState(true);
+
+  const [isSignUpActive, setIsSignUpActive] = useState(false);
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isLoggedIn, setISLoggedIn] = useState(false);
   const [userData, setUserData] = useState({});
@@ -92,9 +92,9 @@ export default function SignUp() {
     signInWithPopup(auth, provider)
       .then((result) => {
 
-        const {displayName, email} = result.user;
-        setUserData({displayName, email})
-        
+        const { displayName, email } = result.user;
+        setUserData({ displayName, email })
+
         setISLoggedIn(true);
       })
       .catch((error) => {
@@ -129,9 +129,9 @@ export default function SignUp() {
   const doSignInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider)
-      .then(async (result) =>{
+      .then(async (result) => {
         console.log(result);
-        if(result.user){
+        if (result.user) {
           alert("user logged in Succesfully!")
         }
         navigate("/dashboard");
@@ -145,49 +145,49 @@ export default function SignUp() {
         className={`container ${isSignUpActive ? "right-panel-active" : ""}`}
       >
         <div className="container__form container--signup">
-          <form className="form" id="form1" onSubmit={onSubmitSignUp}> 
-              <h2 className="form__title">Sign Up</h2>
-              <input
-                type="text"
-                placeholder="Username"
-                className="input"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                className="input"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                className="input"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <input
-                type="password"
-                placeholder="Confirm Password"
-                className="input"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-              <button type="submit" className="btn"> 
-                  Sign Up
-              </button>
-              <br />
-              {errorMessage && <p className="error-message">{errorMessage}</p>}
-              <br />
-              <span>Or sign Up with:</span>
-              <br />
-              <button type="button" onClick={onGoogleSignUp} style={{ background:"#0567a6" }} >
-                  <img src={googleIcon} alt="Google Icon" className="google-icon" />
-              </button>
+          <form className="form" id="form1" onSubmit={onSubmitSignUp}>
+            <h2 className="form__title">Sign Up</h2>
+            <input
+              type="text"
+              placeholder="Username"
+              className="input"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              className="input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              className="input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              className="input"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+            <button type="submit" className="btn">
+              Sign Up
+            </button>
+            <br />
+            {errorMessage && <p className="error-message">{errorMessage}</p>}
+            <br />
+            <span>Or sign Up with:</span>
+            <br />
+            <button type="button" onClick={onGoogleSignUp} style={{ background: "#0567a6" }} >
+              <img src={googleIcon} alt="Google Icon" className="google-icon" />
+            </button>
           </form>
-      </div>
+        </div>
 
         <div className="container__form container--signin">
           <form className="form" id="form2">
@@ -213,7 +213,7 @@ export default function SignUp() {
             <br />
             <spam>Or sign In with:</spam>
             <br />
-            <button type="button" onClick={doSignInWithGoogle} style={{ background:"#0567a6" }} >
+            <button type="button" onClick={doSignInWithGoogle} style={{ background: "#0567a6" }} >
               <img src={googleIcon} alt="Google Icon" className="google-icon" />
             </button>
             {errorMessage && <p className="error-message">{errorMessage}</p>}

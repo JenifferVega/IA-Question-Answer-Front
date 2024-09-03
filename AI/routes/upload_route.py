@@ -104,3 +104,25 @@ def upload_files():
         "questions": extracted_questions,
         "documentName": title,
     })
+
+
+def user_documents():
+    id_token = request.headers.get("Authorization")
+
+    # Verify the user
+    user_info = verify_user(id_token)
+    if not user_info:
+        return jsonify({"error": "Invalid or missing ID token"}), 400
+
+    user_email = user_info['email']
+
+    # Define the user folder path
+    user_folder = os.path.join('uploads', user_email)
+    
+    # Check if the user folder exists and list document folders
+    if not os.path.exists(user_folder):
+        document_folders = []
+    else:
+        document_folders = [name for name in os.listdir(user_folder) if os.path.isdir(os.path.join(user_folder, name))]
+
+    return jsonify({"documents": document_folders}), 200

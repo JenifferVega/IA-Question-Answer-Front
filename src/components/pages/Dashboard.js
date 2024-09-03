@@ -23,14 +23,23 @@ const Dashboard = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const { currentUser } = useAuth();
   const [questions, setQuestions] = useState([]);
-  const { resetDashboard, addDocument } = useContext(DocumentContext);
+  const { resetDashboard, addDocument, htmlContent } = useContext(DocumentContext);
   const [displayedText, setDisplayedText] = useState("");
+  const currentDocument = useRef();
 
   useEffect(() => {
     if (resetDashboard) {
       resetAllState();
     }
   }, [resetDashboard]);
+
+  useEffect(() => {
+    if (htmlContent) {
+      setDisplayedText(htmlContent);
+      setIsTextInputEnabled(true);
+      setTextInputActive(true);
+    }
+  }, [htmlContent])
 
   const resetAllState = () => {
     setKnowledgeBaseFiles([]);
@@ -143,6 +152,24 @@ const Dashboard = () => {
     });
   };
 
+  const saveChatHistory = async (folderName, htmlContent, token) => {
+
+    return await axios.post(
+      `${backend_url}/save-chat-history`,
+      {
+        folder_name: folderName,
+        html_content: htmlContent,
+      },
+      {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
+  };
+
+
   const formatInferenceResults = (questionSection, inferenceQuestions) => {
     console.log("inferenceQuestions", inferenceQuestions);
     let sectionWithContext = "";
@@ -171,7 +198,10 @@ const Dashboard = () => {
       const questionsSections = uploadResponse.data.questions;
       setQuestions(questionsSections);
       addDocument(uploadResponse.data.documentName);
+      currentDocument.ref = uploadResponse.data.documentName;
       handleFileInputChange();
+
+      let textContet = '';
 
       if (questionsSections.length > 0) {
         let i = 0;
@@ -188,9 +218,12 @@ const Dashboard = () => {
 
           setTypeLoading(false);
           typeQuestion(formattedText);
+          textContet += formattedText.replace(/\n/g, "<br />")
           i++;
         }
       }
+
+      saveChatHistory(currentDocument.ref, textContet, token);
 
     } catch (error) {
       console.error("Error uploading files or sending question to the inference-questions service:", error);
@@ -226,7 +259,7 @@ const Dashboard = () => {
       </div>
       <div className="dashboard-content">
         {
-          questions.length > 0 ? (
+          displayedText.length > 0 ? (
             <div className="chat-zone">
               {typeLoading ? (
                 <p className="loading-text">Loading....</p>

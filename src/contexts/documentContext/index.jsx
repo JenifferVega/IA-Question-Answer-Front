@@ -4,6 +4,7 @@ export const DocumentContext = createContext();
 
 export const DocumentProvider = ({ children }) => {
   const [documents, setDocuments] = useState([]);
+  const [htmlContent, setHtmlContent] = useState('');
   const [resetDashboard, setResetDashboard] = useState(false);
 
   const addDocument = (newDocument) => {
@@ -12,13 +13,14 @@ export const DocumentProvider = ({ children }) => {
 
   const clearResetDashboard = () => {
     setResetDashboard(true);
-    setTimeout(()=>{
+    setHtmlContent('');
+    setTimeout(() => {
       setResetDashboard(false);
-    },1000)
+    }, 1000)
   };
 
   return (
-    <DocumentContext.Provider value={{ documents, addDocument, resetDashboard, clearResetDashboard }}>
+    <DocumentContext.Provider value={{ documents, addDocument, resetDashboard, clearResetDashboard, setDocuments, htmlContent, setHtmlContent }}>
       {children}
     </DocumentContext.Provider>
   );

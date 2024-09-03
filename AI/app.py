@@ -2,11 +2,11 @@ from flask import Flask
 from flask_cors import CORS
 import firebase_admin
 from firebase_admin import credentials
-import os
 from config import Config  # Reference the Config class from config.py
-from routes.upload_route import upload_files
+from routes.upload_route import upload_files, user_documents
 from routes.hello_route import hello
 from routes.inference_questions_route import inference_questions
+from routes.save_chat_history_route import save_chat_history, get_html_content
 from flask import Flask
 
 # Initialize Flask app and load configuration
@@ -33,6 +33,9 @@ firebase_admin.initialize_app(cred)
 app.add_url_rule('/upload', 'upload_files', upload_files, methods=['POST'])
 app.add_url_rule('/hello', 'hello', hello, methods=['GET'])
 app.add_url_rule('/inference-questions', 'inference_question', inference_questions, methods=['POST'])
+app.add_url_rule('/save-chat-history', 'save_chat_history', save_chat_history, methods=['POST'])
+app.add_url_rule('/get-html-content', 'get_html_content', get_html_content, methods=['GET'])
+app.add_url_rule('/user-documents', 'user-documents', user_documents, methods=['GET'])
 
 
 if __name__ == '__main__':
