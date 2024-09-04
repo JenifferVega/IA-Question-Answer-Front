@@ -17,7 +17,7 @@ def clean_text(text):
     return text
 
 def extract_sections(assessment_path):
-    textractor = Textractor(sections=True)
+    textractor = Textractor()
     return textractor(assessment_path)
 
 def segment_text(cleaned_text, tokenizer):

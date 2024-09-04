@@ -7,6 +7,7 @@ from routes.upload_route import upload_files, user_documents
 from routes.hello_route import hello
 from routes.inference_questions_route import inference_questions
 from routes.save_chat_history_route import save_chat_history, get_html_content
+from routes.rag_route import rag_question
 from flask import Flask
 
 # Initialize Flask app and load configuration
@@ -36,6 +37,7 @@ app.add_url_rule('/inference-questions', 'inference_question', inference_questio
 app.add_url_rule('/save-chat-history', 'save_chat_history', save_chat_history, methods=['POST'])
 app.add_url_rule('/get-html-content', 'get_html_content', get_html_content, methods=['GET'])
 app.add_url_rule('/user-documents', 'user-documents', user_documents, methods=['GET'])
+app.add_url_rule('/rag-question', 'rag-question', rag_question, methods=['POST'])
 
 
 if __name__ == '__main__':
